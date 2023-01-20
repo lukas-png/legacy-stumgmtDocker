@@ -10,13 +10,29 @@ services:
             - SPARKY_DB_PW
             - BACKEND_DB_PW
 
+    testEnvBuilder:
+        image: docker pull ghcr.io/lukas-png/legacy-testenvbuilder:master
+        build:
+            context: ./envBuilder
+        environment:
+            - SPARKY_PORT
+            - BACKEND_PORT
+            - SUBMISSION_SERVER_PORT
+            - SUBMISSION_WEB_CLIENT_COURSEID
+
+        depends_on:
+            - sparky-service
+            - stu-mgmt-backend
+            - exercise-submitter-server
+            - submitter-web-client
+
     submitter-web-client:
         image: ghcr.io/e-learning-by-sse/exercise-submission-web-client:latest
         environment:
-           - REACT_APP_AUTHURL="${SPARKY_BASEURL:-http://localhost:8080}"
-           - REACT_APP_BACKEND="${BACKEND_BASEURL:-http://localhost:3000}"
-           - REACT_APP_SUBMISSIONSERVER="${SUBMISSION_SERVER_PATH:-java-wise2021}"
-           - REACT_APP_COURSEID="${SUBMISSION_WEB_CLIENT_COURSEID:-java-wise2021}"
+           - REACT_APP_AUTHURL=${SPARKY_BASEURL:-http://localhost:8080}
+           - REACT_APP_BACKEND=${BACKEND_BASEURL:-http://localhost:3000}
+           - REACT_APP_SUBMISSIONSERVER=${SUBMISSION_SERVER_PATH:-java-wise2021}
+           - REACT_APP_COURSEID=${SUBMISSION_WEB_CLIENT_COURSEID:-java-wise2021}
         depends_on:
             - sparky-service
             - stu-mgmt-backend
