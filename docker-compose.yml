@@ -11,7 +11,7 @@ services:
             - BACKEND_DB_PW
 
     testEnvBuilder:
-        image: docker pull ghcr.io/lukas-png/legacy-testenvbuilder:master
+        image: ghcr.io/lukas-png/legacy-testenvbuilder:master
         environment:
             - SPARKY_PORT
             - BACKEND_PORT
