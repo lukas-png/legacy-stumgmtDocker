@@ -1,0 +1,81 @@
+version: "3"
+
+services:
+    postgres:
+        image: legacy/stu-mgmt/postgres
+        build:
+            context: ./postgres
+        environment:
+            - POSTGRES_PASSWORD
+            - SPARKY_DB_PW
+            - BACKEND_DB_PW
+
+    submitter-web-client:
+        image: ghcr.io/e-learning-by-sse/exercise-submission-web-client:latest
+        environment:
+           - REACT_APP_AUTHURL="${SPARKY_BASEURL:-http://localhost:8080}"
+           - REACT_APP_BACKEND="${BACKEND_BASEURL:-http://localhost:3000}"
+           - REACT_APP_SUBMISSIONSERVER="${SUBMISSION_SERVER_PATH:-java-wise2021}"
+           - REACT_APP_COURSEID="${SUBMISSION_WEB_CLIENT_COURSEID:-java-wise2021}"
+        depends_on:
+            - sparky-service
+            - stu-mgmt-backend
+            - exercise-submitter-server
+        ports:
+            - "${SUBMISSION_WEB_CLIENT_PORT:-3001}:3000"
+
+    sparky-service:
+        image: legacy/stu-mgmt/sparky-service
+        build:
+            context: ./sparky
+            args:
+                - SPARKY_JAR
+        environment:
+            - SPARKY_DB_PW
+            - SPARKY_ADMIN_USER
+            - SPARKY_ADMIN_PW
+            - SPARKY_JWT_SECRET
+            - SPARKY_LDAP
+            - SPARKY_LDAP_DOMAIN
+            - SPARKY_LDAP_URLS
+            - SPARKY_LDAP_AD
+        ports:
+            - "${SPARKY_PORT:-8080}:8080"
+        depends_on:
+            - postgres
+
+
+    stu-mgmt-backend:
+        image: legacy/stu-mgmt/stu-mgmt-backend
+        build:
+            context: ./backend
+            args:
+                - BACKEND_ARCHIVE
+        environment:
+            - DB_PASSWORD=$BACKEND_DB_PW
+        # comment this if the backend should not be reachable from outside the docker network
+        ports:
+            - "${BACKEND_PORT:-3000}:3000"
+        depends_on:
+            - postgres
+            - sparky-service
+
+    exercise-submitter-server:
+        image : legacy/exercise-submitter-server
+        build:
+            context: ./submission-server
+            args:
+                - EXERCISE_SUBMISSION_SERVER_JAR
+        environment:
+            - SUBMISSION_SERVER_MGMT_USER
+            - SUBMISSION_SERVER_MGMT_PW
+        ports:
+            - "${SUBMISSION_SERVER_PORT:-8001}:8080"
+        depends_on:
+            - sparky-service
+            - stu-mgmt-backend
+
+
+    
+
+   

@@ -1,0 +1,81 @@
+db:
+   name: sparky_db
+   addr: jdbc:postgresql://postgres:5432/sparky_db
+   user: sparky_db_user
+   password: ${SPARKY_DB_PW}
+jwt:
+   secret: SECRET
+
+# OPTIONAL
+server:
+   port: 8080
+zuul:
+   routes:
+      stmgmt:
+         url: http://stu-mgmt-backend:3000
+         acl: none
+recovery:
+   enaled: false
+   password: PASSWORD
+   user: adminuser
+ldap:
+   enabled:  ${SPARKY_LDAP}
+   ad:  ${SPARKY_LDAP_AD}
+   basedn: ${SPARKY_LDAP_DOMAIN}
+   url: ${SPARKY_LDAP_URLS}
+   userdn: null
+debug: false
+
+spring:
+   profiles: postgres
+   datasource:
+      driverClassName: org.postgresql.Driver
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://%s/%s
+   jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+spring:
+   profiles: prod
+   jpa:
+      show-sql: false
+     # hibernate:
+     #    ddl-auto: update
+      properties:
+         connection:
+            pool_size: 7
+jwt:
+   issuer: sparkyservice-api
+logging:
+   level:
+      com:
+         zaxxer:
+            hikari: OFF
+      root: INFO
+      org:
+         springframework: ERROR
+      net:
+         ssehub:
+            sparkyservice: INFO
+debug: false      
+      
+spring:
+   profiles: debug
+debug: true
+logging:
+   level:
+      root: INFO
+      org:
+         springframework:
+            web: WARN
+            boot:
+               autoconfigure: ERROR
+         hibernate: ERROR
+      net:
+         ssehub:
+            sparkyservice: DEBUG
+spring:
+   profiles: dbsetup
+   jpa:
+      hibernate: 
+         ddl-auto: create
