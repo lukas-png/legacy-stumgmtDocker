@@ -12,8 +12,6 @@ services:
 
     testEnvBuilder:
         image: docker pull ghcr.io/lukas-png/legacy-testenvbuilder:master
-        build:
-            context: ./envBuilder
         environment:
             - SPARKY_PORT
             - BACKEND_PORT
